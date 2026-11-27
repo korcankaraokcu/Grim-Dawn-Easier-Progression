@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <!-- .NET Framework 4.8 ships with Windows 10/11, so the exe runs without installing anything. -->
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <UseWindowsForms>true</UseWindowsForms>
+    <AssemblyName>GrimDawnEasierProgression</AssemblyName>
+    <RootNamespace>EasierProgression</RootNamespace>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <Version>1.0.0</Version>
+    <Product>Grim Dawn - Easier Progression</Product>
+    <Deterministic>true</Deterministic>
+    <DebugType>none</DebugType>
+    <!-- Single-file release: the exe runs on the built-in .NET Framework 4.x without a .config. -->
+    <GenerateSupportedRuntime>false</GenerateSupportedRuntime>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+
+</Project>

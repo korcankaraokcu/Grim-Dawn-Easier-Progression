@@ -8,21 +8,33 @@ A settings UI that builds a personal Grim Dawn mod (`mods/EasierProgression`) wi
 | **Friendly rep per kill** | Scales `killBonus*` on faction controllers (e.g. killing beasts → Devil's Crossing / Coven). |
 | **Hostile rep per kill** | Scales `killPenalty*` (how fast enemies hate you → Nemesis spawns). |
 | **Remove diminishing rep** | Sets `common/championMonsterGainReduction` to 1.0. |
-| **Legendary / Epic / MI chance** | Reweights loot tables, monster loot slots and chests so each tier's chance becomes roughly `vanilla × multiplier`. The number of drops is unchanged: common items give up the share. Epic/Legendary are filled first, then MI, so raising MI never reduces the Epic/Legendary boost. In guaranteed boss slots with no common items (MI *or* Epic), more Epics means slightly fewer MIs. |
-| **Drop amount** | Multiplies each monster loot slot's drop chance (`chanceToEquip*`, capped at 100%) and wraps chest/breakable item counts (`numSpawnMin/MaxEquation`) with `(...)*x`, like GDModdingTool's `AdjustLootAmount`. What a slot drops is unchanged, so Epics/Legendaries scale with it. Guaranteed (100%) boss/hero slots and cosmetic-only slots (e.g. zombie rags) stay as they are. |
+| **Legendary / Epic / MI chance** | Reweights loot tables, monster loot slots and chests so each tier's chance becomes roughly `vanilla × multiplier`. The number of drops is unchanged: common gear gives up the share. Crafting materials, blueprints and other non-gear drops keep about their vanilla chance (they can rise where they share a table with boosted items). Tables keep one set of weights for every level, so where the items underneath change with character level the boost is a compromise across levels: e.g. a boss slot whose Epic table gives common items below level 6 gets its full Epic boost later at the cost of a few percent fewer MIs at levels 1–5. Epic/Legendary are filled first, then MI, so raising MI never reduces the Epic/Legendary boost. In guaranteed boss slots with no common items (MI *or* Epic), more Epics means slightly fewer MIs. |
+| **Drop rate (chance / chest items)** | **Monsters:** multiplies each loot slot's drop *chance* (`chanceToEquip*`, capped at 100%), not the number of items. A slot still drops at most one item per kill, so 30% becomes 60% (×2 on average) but 70% can only become 100% (×1.43). **Chests and breakables:** multiplies how many items they roll. Technically it multiplies monster slot chances and wraps chest/breakable item counts (`numSpawnMin/MaxEquation`) with `(...)*x`, like GDModdingTool's `AdjustLootAmount`. What a slot drops is unchanged, so Epics/Legendaries scale with it. Guaranteed (100%) boss/hero slots and cosmetic-only slots (e.g. zombie rags) stay as they are. |
 | **Gold amount** | Wraps the gold formulas in the 18 shared gold-generator records with `(...)*x` and scales their min/max clamps to match. |
-| **Free inventory bags** | The Devil's Crossing faction vendor always stocks Inventory Bags for 0 gold once you're Friendly with them (`marketStaticItems` on `devilscrossing_friendly_01`). |
+| **Free inventory bags** | Kerrick, the Devil's Crossing merchant, has 5 Inventory Bags for 0 gold from the start, restocked whenever his stock rerolls: his unused Potion stock category (`merchanttbl_a01`) is pointed at the bag with a count of 5. The Devil's Crossing faction vendor also always stocks them once you're Friendly (`marketStaticItems` on `devilscrossing_friendly_01`). |
 | **Rare affixes / prefix+suffix / plain items** | Scales the affix-combination weights in `LootItemTable_DynWeight` tables. |
 | **Stat rolls (min/max %)** | Moves each affix's roll range inside its vanilla range (see below). |
 
 ## Use
 
-1. `run_gui.bat` (installs `lz4` once if it's missing), or `python gd_easier_progression.py`.
-2. Pick a preset or move the sliders, then click **Build / Update mod** (~30–50 s).
+1. Run `GrimDawnEasierProgression.exe`. It needs nothing installed: it runs on .NET Framework 4.8,
+   which ships with Windows 10 and 11.
+2. Pick a preset or move the sliders, then click **Build / Update mod** (~8 s).
 3. In Grim Dawn: **Play → Custom Game → EasierProgression**. Create a new character or bring one in.
 4. Rebuild after every game patch so the mod always copies current game data.
 
-Headless rebuild using the saved `settings.json`: `python gd_easier_progression.py --build`.
+Settings are saved in `settings.json` next to the exe. Headless rebuild with them:
+`GrimDawnEasierProgression.exe --build` (optionally `--settings other.json`).
+
+## Building from source
+
+Needs the .NET SDK (8 or newer; `winget install Microsoft.DotNet.SDK.8`):
+
+```
+dotnet build src -c Release
+```
+
+The exe is written to `src/bin/Release/net48/`.
 
 ## How the stat-roll setting works
 
@@ -39,9 +51,10 @@ Proc chances, durations, conversions and skill bonuses are not scaled.
 
 ## Notes
 
-- The free bags are sold by the Devil's Crossing faction vendor, not by Kerrick (the regular
-  Devil's Crossing merchant). Kerrick's whole stock is rolled at random from loot tables, so a bag
-  there would only appear sometimes. Faction vendors have a fixed, always-in-stock list.
+- Kerrick's stock is rolled per category (a loot table plus a min/max count). The bag gets his
+  unused Potion category with a count of 5, so they're always there and he loses no regular stock.
+  Vanilla uses the same trick to sell a quest item (Benevald's Chest category). The faction vendor
+  (fixed, always-in-stock list) is a second source.
 - The bags are not handed out through a quest. That is possible (GDModdingTool's optional mod makes
   the first quest give all five), but quests are compiled binary files in `resources/Quests.arc`
   with an undocumented format, edited only with Crate's QuestEditor/Asset Manager. The mod would
